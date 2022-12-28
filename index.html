@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        input[type=search] {
+            Width: 241px;
+            Height: 38px;
+            Font-size: 16px;
+            color: rgb(33, 37, 41);
+            Background-color: rgb(255, 255, 255);
+            Border-color: rgb(206, 212, 218);
+            Padding-top: 6px;
+            Padding-bottom: 6px;
+            Padding-left: 12px;
+            Padding-right: 15px;
+            Border-radius: 4px;
+            Font-family: system-ui;
+        }
+
+        input[type=search]:active {
+            border-color: #7952b3;
+            box-shadow: 0 0 0 3px rgb(121 82 179 / 25%);
+        }
+
+        input:disabled {
+            Background-color: rgb(233, 236, 239);
+        }
+
+        table {
+            Border: solid 1px rgb(222, 226, 230);
+        }
+
+        td {
+            font-weight: 700;
+        }
+
+        td,
+        th {
+            Padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <input type="search" id="sc" placeholder="Search places.." name="search" onkeyup="showResult(event,this.value)"">
+    </form>
+    <p id="result"></p>
+</body>
+
+</html>
+<!-- <script scr="index.js"></script> -->
+<script>
+
+    function showResult(event, str) {
+
+        if (event.keyCode === 16) {
+            event.preventDefault();
+            if (str.length == 0) {
+                document.getElementById("result").innerHTML = "Start searching";
+                return;
+            }
+            else {
+                var xhr = new XMLHttpRequest();
+                var link = "https://wft-geo-db.p.rapidapi.com/v1/geo/cities?countryIds=IN&namePrefix=" + str + "&limit=5";
+                console.log(link)
+                xhr.open("get", link, true);
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr.setRequestHeader('x-rapidapi-host', 'wft-geo-db.p.rapidapi.com');
+                xhr.setRequestHeader('x-rapidapi-key', '756c2b6afamsh712b34178a45e97p196e27jsn4498a74654da');
+                xhr.send("countryIds=IN&namePrefix=" + str + "limit=5");
+
+                xhr.onreadystatechange = function () {
+                    if (this.readyState == 3 && this.status == 200) {
+                        document.getElementById("result").innerHTML = "loading..."
+                    }
+                }
+                xhr.onload = function () {
+                    if (this.responseText != null) {
+
+                        var input = (JSON.parse(this.responseText)).data;
+                        if (input.length == 0) {
+                            document.getElementById("result").innerHTML = "No result found";
+                            return;
+                        }
+                        var c = 0;
+                        var data = "<table><tr><th>#</th><th>First</th><th>Last</th><th>Handle</th></tr>"
+                        for (var i = 0; i < input.length; i++) {
+                            var src = "https://countryflagsapi.com/png/" + input[i].countryCode;
+                            data = data + "<tr><td>" + c + "</td><td>" + input[i].city + "</td><td>" + input[i].country + "</td><td><img height='10px'crossorigin='anonymous' src='" + src + "'></td></tr>";
+                            c = c + 1;
+
+                        }
+                        data = data + "</table>";
+
+                        document.getElementById("result").innerHTML = data;
+                    }
+                    else {
+
+                        document.getElementById("result").innerHTML = "No result found";
+                    }
+                }
+            }
+        }
+    }
+
+
+
+</script>
